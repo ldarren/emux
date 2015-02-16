@@ -3,6 +3,7 @@
 <head>
 <meta name=viewport content="width=device-width, initial-scale=1">
 <link rel=stylesheet href=pure-min.css>
+<link rel=stylesheet href=emux.css>
 <title>Enviromux Watchdog</title>
 </head>
 <body>
@@ -18,17 +19,17 @@
     <fieldset>
         <div class=pure-control-group>
             <label for=ip>Enviromux IP Address</label>
-            <input id=ip type=text placeholder=192.168.1.100>
+            <input id=ip type=text placeholder=192.168.1.100 value=192.168.1.100 required>
         </div>
 
         <div class=pure-control-group>
-            <label for=tmpThres>Temperature Threshold</label>
-            <input id=tmpThres type=number min=20 max=100 step=1 placeholder=20>
+            <label for=tmpCap>Temperature Threshold</label>
+            <input id=tmpCap type=number min=20 max=100 step=1 placeholder=20 value=20 required>
         </div>
 
         <div class=pure-control-group>
-            <label for=hmdThres>Humidity Threshold</label>
-            <input id=hmdThres type=number min=20 max=100 step=1 placeholder=20>
+            <label for=hmdCap>Humidity Threshold</label>
+            <input id=hmdCap type=number min=20 max=100 step=1 placeholder=20 value=20 required>
         </div>
 
         <div class=pure-controls>
@@ -38,17 +39,23 @@
 </form>
 </div>
 <div id=watch class=page hidden>
-<div id=tmp class=panel>
+<div id=tmp class="panel panelOK">
 <div class="pure-menu pure-menu-open pure-menu-horizontal">
 	<a href="#" class="pure-menu-heading">&lt;</a>
 </div>
+<div class=billb></div>
+<canvas class=chart width="100%" height="100"></canvas>
 </div>
-<div id=hmd class=panel>
+<div id=hmd class="panel panelOK">
 <div class="pure-menu pure-menu-open pure-menu-horizontal">
 	<a href="#" class="pure-menu-heading">&lt;</a>
 </div>
+<div class=billb></div>
+<canvas class=chart width="100%" height="100"></canvas>
 </div>
 </div>
+<script src=smoothie.js></script>
+<script src=WatchPanel.js></script>
 <script src=app.js></script>
 </body>
 </html>
