@@ -4,11 +4,12 @@ window.addEventListener('load', function(e){
 	pageSetup = document.querySelector('#setup.page'),
     formSetup = pageSetup.querySelector('form.pure-form'),
 	pageWatch = document.querySelector('#watch.page'),
-	panelTmp = new WatchPanel(pageWatch.querySelector('#tmp.panel')),
-	panelHmd = new WatchPanel(pageWatch.querySelector('#hmd.panel')),
+	panelTmp = new WatchPanel(pageWatch.querySelector('#tmp.panel'), false),
+	panelHmd = new WatchPanel(pageWatch.querySelector('#hmd.panel'), true),
     timerId = 0, emuxIP='192.168.1.100', tmpCap=20, hmdCap=20
     onTimer = function(){
         var t = Date.now()
+
         panelTmp.plot(t, Math.round(Math.random()*1000)/10, 'C')
         panelHmd.plot(t, Math.round(Math.random()*100), '%')
         timerId = window.setTimeout(onTimer, 1000)
@@ -33,6 +34,10 @@ window.addEventListener('load', function(e){
         formSetup.tmpCap.value = tmpCap
         formSetup.hmdCap.value = hmdCap
     },
+	onResize = function(e){
+		panelTmp.resize()
+		panelHmd.resize()
+	},
 	onMenuClick = function(e){
 		switch(e.target.firstChild.textContent){
 		case 'Setup':
@@ -64,6 +69,8 @@ window.addEventListener('load', function(e){
 	for(var i=0,backs = pageWatch.querySelectorAll('.pure-menu > a'),m; m=backs[i]; i++){
 		m.addEventListener('click', onBackClick, false)
 	}
+
+	window.addEventListener('resize', onResize, false)
 
     onLoad()
 })
