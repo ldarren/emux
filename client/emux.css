@@ -4,9 +4,17 @@ html,body{
 .page{
     height:100%;
 }
-.panel{
-    width:50%;
+.pure-form{
+    margin:20px
+}
+.divider{
+    width:2%;
     height:100%;
+    float:left;
+    background-color:black;
+}
+.panel{
+    width:49%;
     height:100%;
     float:left;
 }
@@ -25,7 +33,7 @@ html,body{
 .billb{
     position:absolute;
     height:80%;
-    width:50%;
+    width:49%;
     line-height:700%;
     text-align:center;
 	vertical-align:middle;

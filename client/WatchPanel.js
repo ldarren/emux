@@ -1,6 +1,6 @@
 function WatchPanel(ele, greaterOK){
     this.ele = ele
-    this.billb = ele.querySelector('.billb')
+    this.billb = ele.querySelector('.billb span')
 	this.greaterOK = greaterOK
 
     var
@@ -24,7 +24,7 @@ WatchPanel.prototype = {
     setThreshold: function(cap){
         this.capVal = cap
     },
-    plot: function(time, cur, unit){
+    plot: function(time, cur){
 		var
 		cl = this.ele.classList,
 		cn
@@ -40,11 +40,11 @@ WatchPanel.prototype = {
 			cl.remove('panelKO')
 			cl.add(cn)
 		}
-        this.billb.textContent = cur + ' ' + unit
+        this.billb.textContent = cur
         this.cur.append(time, cur)
         this.cap.append(time, this.capVal)
     },
 	resize: function(){
-    	this.ele.querySelector('.chart').width = window.innerWidth / 2
+    	this.ele.querySelector('.chart').width = window.innerWidth * 0.49
 	}
 }
