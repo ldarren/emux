@@ -19,6 +19,7 @@ window.addEventListener('load', function(e){
         window.localStorage.setItem(LSKey, JSON.stringify({ip:emuxIP, tmpCap:tmpCap, hmdCap:hmdCap}))
     },
     onLoad = function(){
+        Resource.stop()
         try{ 
             var s = JSON.parse(window.localStorage.getItem(LSKey))
             emuxIP = s.ip
@@ -30,6 +31,9 @@ window.addEventListener('load', function(e){
         formSetup.ip.value = emuxIP
         formSetup.tmpCap.value = tmpCap
         formSetup.hmdCap.value = hmdCap
+
+		pageWatch.setAttribute('hidden', '')
+		pageSetup.removeAttribute('hidden')
     },
 	onResize = function(e){
 		panelTmp.resize()
@@ -38,10 +42,7 @@ window.addEventListener('load', function(e){
 	onMenuClick = function(e){
 		switch(e.target.firstChild.textContent){
 		case 'Setup':
-            Resource.stop()
             onLoad()
-			pageWatch.setAttribute('hidden', '')
-			pageSetup.removeAttribute('hidden')
 			break
 		case 'Watch':
             panelTmp.setThreshold(tmpCap)
@@ -53,8 +54,7 @@ window.addEventListener('load', function(e){
 		}
 	},
 	onBackClick = function(e){
-		pageWatch.setAttribute('hidden', '')
-		pageSetup.removeAttribute('hidden')
+		onLoad()
 	}
 
     pageSetup.querySelector('form.pure-form button.pure-button').addEventListener('click', onSave, false)

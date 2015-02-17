@@ -6,16 +6,17 @@ Resource = {
     callback: null,
     start: function(ip, interval, cb){
         if (!ip || !cb) return alert('Failed to run Resource')
-        this.isStopped = false
         this.stop()
         this.interval = interval && interval > 100 ? interval : this.interval
         this.callback = cb
-        if (/*'demo' === */ip) {
+        this.isStopped = false
+        if ('demo' === ip) {
             this.timerId = window.setTimeout(this.randomAdd, this.interval, this)
         }else{
-            this.ajaxGet('/set?ip='+ip, function(err){
+			var self = this
+            this.ajaxGet('set?ip='+ip, function(err){
                 if (err) return console.error(err)
-                this.ajaxGet('/chart', this.netAdd, this)
+                self.ajaxGet('get', self.netAdd, self)
             })
         }
     },
@@ -27,7 +28,7 @@ Resource = {
     ajaxGet: function(path, cb, ud){
         var xhr = window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP')
 
-        xhr.open('get', encodeURI('http://localhost/'+path), true)
+        xhr.open('get', encodeURI('http://localhost:8080/'+path), true)
 
         xhr.onreadystatechange=function(){
             if (4 === xhr.readyState && cb){
@@ -49,20 +50,17 @@ Resource = {
 
         ctx.lastTime = time
         
-        try{
-            data = JSON.parse(xhr.responseText)
-            ctx.callback(time, parseInt(data.tmp)/10, hv = parseInt(data.hmd))
-        }catch(exp){
-            console.error(exp)
-        }
+		data = xhr.responseText.split('|')
+		ctx.callback(time, parseInt(data[0])/10, hv = parseInt(data[1]))
 
         if (ctx.isStopped) return
         
-        if (ctx.interval < dt) ctx.ajaxGet('/chart', ctx.netAdd, ctx)
-        ctx.timerId = window.setTimeout(ctx.ajaxGet, ctx.interval - dt, '/chart', ctx.netAdd, ctx)
+        if (ctx.interval < dt) ctx.ajaxGet('get', ctx.netAdd, ctx)
+        ctx.timerId = window.setTimeout(ctx.ajaxGet, ctx.interval - dt, 'get', ctx.netAdd, ctx)
     },
     randomAdd: function(ctx){
         ctx.callback(Date.now(), Math.round(Math.random()*1000)/10, Math.round(Math.random()*100))
+        if (ctx.isStopped) return
         ctx.timerId = window.setTimeout(ctx.randomAdd, ctx.interval, ctx)
     }
 }

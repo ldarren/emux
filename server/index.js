@@ -2,15 +2,13 @@
 // http://www.networktechinc.com/enviro-16d-oid.html
 var 
 http = require('http'),
-qs = require('querystring'),
+url = require('url'),
 snmp = require('snmp-native'),
 file = new (require('node-static').Server)('../client'),
 int_tmp =	[1,3,6,1,4,1,3699,1,1,10,1,3,1,1,6,1],
 int_hmd =	[1,3,6,1,4,1,3699,1,1,10,1,3,1,1,6,2],
-ro = new snmp.Session({host:process.argv[2], port:161, community:'ro'}),
-rw = new snmp.Session({host:process.argv[2], port:161, community:'rw'}),
+ro, rw,
 poll = function(s, cb){
-console.log('polling')
 	s.get({oid:int_tmp}, function(err, tmp){
 		if (err) return cb(err)
 		s.get({oid:int_hmd}, function(err, hmd){
@@ -21,15 +19,27 @@ console.log('polling')
 }
 
 http.createServer(function (req, res) {
-	if (-1 === req.url.indexOf('tmphmd')) file.serve(req, res)
-	else poll(ro, function(err, tmp, hmd){
-		if (err) {
-			res.writeHead(404)
-			return res.end(JSON.stringify(err))
-		}
+	var u = url.parse(req.url, true)
+
+	switch(u.pathname){
+	case '/set':
+		ro = new snmp.Session({host:u.query.ip, port:161, community:'ro'})
+		rw = new snmp.Session({host:u.query.ip, port:161, community:'rw'})
 		res.writeHead(200)
-		res.end(tmp.toString()+'|'+hmd);
-	})
+		res.end()
+		break
+	case '/get':
+		poll(ro, function(err, tmp, hmd){
+			if (err) {
+				res.writeHead(404)
+				return res.end(JSON.stringify(err))
+			}
+			res.writeHead(200)
+			res.end(tmp.toString()+'|'+hmd);
+		})
+		break
+	default: return file.serve(req, res)
+	}
 }).listen(8080)
 
 console.log('Server is serving')
