@@ -6,28 +6,10 @@ window.addEventListener('load', function(e){
 	pageWatch = document.querySelector('#watch.page'),
 	panelTmp = new WatchPanel(pageWatch.querySelector('#tmp.panel'), false),
 	panelHmd = new WatchPanel(pageWatch.querySelector('#hmd.panel'), true),
-    timerId = 0, emuxIP='192.168.1.100:80', tmpCap=20, hmdCap=20
-    ajaxGet = function(path, cb){
-        var xhr = window.XMLHttpRequest ? new window.XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP')
-
-        xhr.open('get', encodeURI('http://localhost/'+path), true)
-
-        xhr.onreadystatechange=function(){
-            if (4 === xhr.readyState && cb){
-                var st = xhr.status
-                return cb((200 === st || !st) ? null : new Error("Error["+xhr.statusText+"] Info: "+xhr.responseText), xhr)
-            }
-        }
-        xhr.onerror=function(evt){cb(evt, xhr)}
-
-        xhr.send()
-    },
-    addData = function(){
-        var t = Date.now()
-
-        panelTmp.plot(t, Math.round(Math.random()*1000)/10)
-        panelHmd.plot(t, Math.round(Math.random()*100))
-        timerId = window.setTimeout(addData, 1000)
+    emuxIP='demo', tmpCap=20, hmdCap=20
+    addData = function(t, tmp, hmd){
+        panelTmp.plot(t, tmp)
+        panelHmd.plot(t, hmd)
     },
     onSave = function(e){
         if(!formSetup.checkValidity()) return alert('Missing required fields')
@@ -56,7 +38,7 @@ window.addEventListener('load', function(e){
 	onMenuClick = function(e){
 		switch(e.target.firstChild.textContent){
 		case 'Setup':
-            window.clearTimeout(timerId)
+            Resource.stop()
             onLoad()
 			pageWatch.setAttribute('hidden', '')
 			pageSetup.removeAttribute('hidden')
@@ -66,7 +48,7 @@ window.addEventListener('load', function(e){
             panelHmd.setThreshold(hmdCap)
 			pageSetup.setAttribute('hidden', '')
 			pageWatch.removeAttribute('hidden')
-            timerId = window.setTimeout(addData, 1000)
+            Resource.start(emuxIP, 1000, addData)
 			break
 		}
 	},
