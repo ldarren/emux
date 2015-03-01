@@ -21,6 +21,14 @@ init = function(inputs, id){
 	inputs.push(intSensors.slice().concat([MAX_CAP, id]))
 	return inputs
 },
+config = function(ip){
+	if (!ip) return false
+
+	clearTimeout(pollTimer)
+	ro = new snmp.Session({host:ip, port:161, community:'ro'})
+	rw = new snmp.Session({host:ip, port:161, community:'rw'})
+	poll(ro)
+},
 poll = function(s){
 	s.getSubtree({oid:intSensors}, function(err, varBinds){
 		if (err) {
@@ -52,13 +60,7 @@ console.log(out)
 writes = function(s, data){
 	if (!data) return false
 	data = data.split('|')
-	if (5 !== data.length) return false
-
-	var ip = data.shift()
-	clearTimeout(pollTimer)
-	ro = new snmp.Session({host:ip, port:161, community:'ro'})
-	rw = new snmp.Session({host:ip, port:161, community:'rw'})
-	poll(ro)
+	if (4 !== data.length) return false
 
 	rw.set({oid:inTmp[0], value:parseInt(data.shift()), type:2}, function(err){
 		if (err) console.error(err)
@@ -84,12 +86,14 @@ http.createServer(function (req, res) {
 	var u = url.parse(req.url, true)
 
 	switch(u.pathname){
+	case '/config':
+		if (writes(u.query.data)) res.writeHead(200)
+		else res.writeHead(400)
+		res.end()
+		break
 	case '/set':
-		if (writes(u.query.data)){
-			res.writeHead(200)
-		}else{
-			res.writeHead(400)
-		}
+		if (writes(u.query.data)) res.writeHead(200)
+		else res.writeHead(400)
 		res.end()
 		break
 	case '/get':

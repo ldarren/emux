@@ -12,6 +12,7 @@
 	<a href="#" class="pure-menu-heading">Enviromux Watchdog</a>
     <ul>
         <li class=pure-menu-selected><a href="#">Setup</a></li>
+        <li><a href="#">Settings</a></li>
         <li><a href="#">Watch</a></li>
     </ul>
 </div>
@@ -22,22 +23,39 @@
             <input id=ip type=text placeholder=192.168.1.100:8080 value=demo required>
         </div>
 
+        <div class=pure-controls>
+            <button type=button class="pure-button pure-button-primary">Next</button>
+        </div>
+    </fieldset>
+</form>
+</div>
+<div id=settings class=page hidden>
+<div class="pure-menu pure-menu-open pure-menu-horizontal">
+	<a href="#" class="pure-menu-heading">Enviromux Watchdog</a>
+    <ul>
+        <li><a href="#">Setup</a></li>
+        <li class=pure-menu-selected><a href="#">Settings</a></li>
+        <li><a href="#">Watch</a></li>
+    </ul>
+</div>
+<form class="pure-form pure-form-aligned">
+    <fieldset>
         <div class=pure-control-group>
-            <label for=tmpCap>Minimum Temperature Threshold</label>
-            <input id=tmpCap type=number min=0 max=50 step=1 placeholder=15 value=15 required>
+            <label for=tmpMin>Minimum Temperature Threshold</label>
+            <input id=tmpMin type=number min=0 max=50 step=1 placeholder=15 value=15 required>
         </div>
         <div class=pure-control-group>
-            <label for=tmpCap>Maximum Temperature Threshold</label>
-            <input id=tmpCap type=number min=10 max=100 step=1 placeholder=60 value=60 required>
+            <label for=tmpMax>Maximum Temperature Threshold</label>
+            <input id=tmpMax type=number min=10 max=100 step=1 placeholder=60 value=60 required>
         </div>
 
         <div class=pure-control-group>
-            <label for=hmdCap>Minimum Humidity Threshold</label>
-            <input id=hmdCap type=number min=0 max=50 step=1 placeholder=20 value=20 required>
+            <label for=hmdMin>Minimum Humidity Threshold</label>
+            <input id=hmdMin type=number min=0 max=50 step=1 placeholder=20 value=20 required>
         </div>
         <div class=pure-control-group>
-            <label for=hmdCap>Maximum Humidity Threshold</label>
-            <input id=hmdCap type=number min=10 max=100 step=1 placeholder=80 value=80 required>
+            <label for=hmdMax>Maximum Humidity Threshold</label>
+            <input id=hmdMax type=number min=10 max=100 step=1 placeholder=80 value=80 required>
         </div>
 
         <div class=pure-controls>
