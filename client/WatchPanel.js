@@ -1,50 +1,32 @@
+var states = ['NOTCONNECTED', 'NORMAL', 'PREALERT', 'ALERT', 'ACKNOWLEDGED', 'DISMISSED', 'DISCONNECTED']
+
 function WatchPanel(ele, greaterOK){
     this.ele = ele
     this.billb = ele.querySelector('.billb span')
+    this.stateb = ele.querySelector('.status')
 	this.greaterOK = greaterOK
-
-    var
-    chart = new SmoothieChart({interpolation:'linear',grid:{verticalSections:10},maxValue:100,minValue:0}),
-    cur = new TimeSeries(),
-    cap = new TimeSeries()
-
-	this.resize()
-
-    chart.addTimeSeries(cur, {lineWidth:2,strokeStyle:'#00ff00',fillStyle:'rgba(0,255,0,0.3)'})
-    chart.addTimeSeries(cap, {lineWidth:2,strokeStyle:'#0000ff',fillStyle:'rgba(0,0,255,0.3)'})
-    chart.streamTo(ele.querySelector('.chart'), 1000)
-
-    this.chart = chart
-    this.cur = cur
-    this.cap = cap
-    this.capVal = 0
 }
 
 WatchPanel.prototype = {
-    setThreshold: function(cap){
-        this.capVal = cap
-    },
-    plot: function(time, cur){
-		var
-		cl = this.ele.classList,
-		cn
+    plot: function(cur, state, min, max){
+		var cl = this.ele.classList, cn
+
 		if (this.greaterOK){
-			if (cur < this.capVal) cn = 'panelKO'
+			if (cur < min) cn = 'panelUnder'
+			else if (cur > max) cb = 'panelOver'
 			else cn = 'panelOK'
 		}else{
-			if (cur > this.capVal) cn = 'panelKO'
+			if (cur < min) cn = 'panelUnder'
+			else if (cur > max) cn = 'panelOver'
 			else cn = 'panelOK'
 		}
 		if (!cl.contains(cn)){
 			cl.remove('panelOK')
-			cl.remove('panelKO')
+			cl.remove('panelOver')
+			cl.remove('panelUnder')
 			cl.add(cn)
 		}
         this.billb.textContent = cur
-        this.cur.append(time, cur)
-        this.cap.append(time, this.capVal)
-    },
-	resize: function(){
-    	this.ele.querySelector('.chart').width = window.innerWidth * 0.49
+        this.stateb.textContent = states[state]
 	}
 }

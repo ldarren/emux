@@ -31,8 +31,9 @@ poll = function(s){
 				oid = v.oid
 				switch(oid[14]){
 				case VALUE: out[oid[15]-1] = v.value; break
-				case MIN_CAP: out[2 + (oid[15]-1)] = v.value; break
-				case MAX_CAP: out[4 + (oid[15]-1)] = v.value; break
+				case STATUS: out[2 + oid[15]-1] = v.value; break
+				case MIN_CAP: out[4 + (oid[15]-1)] = v.value; break
+				case MAX_CAP: out[6 + (oid[15]-1)] = v.value; break
 				}
 			}
 console.log(out)

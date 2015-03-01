@@ -7,7 +7,7 @@
 <title>Enviromux Watchdog</title>
 </head>
 <body>
-<div id=setup class=page>
+<div id=setup class=page hidden>
 <div class="pure-menu pure-menu-open pure-menu-horizontal">
 	<a href="#" class="pure-menu-heading">Enviromux Watchdog</a>
     <ul>
@@ -23,13 +23,21 @@
         </div>
 
         <div class=pure-control-group>
-            <label for=tmpCap>Temperature Threshold</label>
-            <input id=tmpCap type=number min=20 max=100 step=1 placeholder=20 value=20 required>
+            <label for=tmpCap>Minimum Temperature Threshold</label>
+            <input id=tmpCap type=number min=0 max=50 step=1 placeholder=15 value=15 required>
+        </div>
+        <div class=pure-control-group>
+            <label for=tmpCap>Maximum Temperature Threshold</label>
+            <input id=tmpCap type=number min=10 max=100 step=1 placeholder=60 value=60 required>
         </div>
 
         <div class=pure-control-group>
-            <label for=hmdCap>Humidity Threshold</label>
-            <input id=hmdCap type=number min=20 max=100 step=1 placeholder=20 value=20 required>
+            <label for=hmdCap>Minimum Humidity Threshold</label>
+            <input id=hmdCap type=number min=0 max=50 step=1 placeholder=20 value=20 required>
+        </div>
+        <div class=pure-control-group>
+            <label for=hmdCap>Maximum Humidity Threshold</label>
+            <input id=hmdCap type=number min=10 max=100 step=1 placeholder=80 value=80 required>
         </div>
 
         <div class=pure-controls>
@@ -38,24 +46,18 @@
     </fieldset>
 </form>
 </div>
-<div id=watch class=page hidden>
+<div id=watch class=page>
 <div id=tmp class="panel panelOK">
-<div class="pure-menu pure-menu-open pure-menu-horizontal">
-	<a href="#" class="pure-menu-heading">&lt;</a>
-</div>
 <div class=billb><span></span>&deg;C</div>
-<canvas class=chart width="100%" height="100"></canvas>
+<div class=status></div>
 </div>
 <div class=divider></div>
 <div id=hmd class="panel panelOK">
-<div class="pure-menu pure-menu-open pure-menu-horizontal">
-	<a href="#" class="pure-menu-heading">&lt;</a>
-</div>
 <div class=billb><span></span>%</div>
-<canvas class=chart width="100%" height="100"></canvas>
+<div class=status></div>
 </div>
 </div>
-<script src=smoothie.js></script>
+<script src=shortcut.js></script>
 <script src=WatchPanel.js></script>
 <script src=Resource.js></script>
 <script src=app.js></script>

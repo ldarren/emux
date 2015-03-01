@@ -26,8 +26,12 @@ html,body{
     background-color:#cf9;
     color:#030;
 }
-.panelKO{
+.panelOver{
     background-color:#f00;
+    color:#fff;
+}
+.panelUnder{
+    background-color:#00f;
     color:#fff;
 }
 .billb{

@@ -7,9 +7,9 @@ window.addEventListener('load', function(e){
 	panelTmp = new WatchPanel(pageWatch.querySelector('#tmp.panel'), false),
 	panelHmd = new WatchPanel(pageWatch.querySelector('#hmd.panel'), true),
     emuxIP='demo', tmpCap=20, hmdCap=20
-    addData = function(t, tmp, hmd){
-        panelTmp.plot(t, tmp)
-        panelHmd.plot(t, hmd)
+    addData = function(tmp, hmd){
+        panelTmp.update(tmp)
+        panelHmd.update(hmd)
     },
     onSave = function(e){
         if(!formSetup.checkValidity()) return alert('Missing required fields')
@@ -63,11 +63,8 @@ window.addEventListener('load', function(e){
 		m.addEventListener('click', onMenuClick, false)
 	}
 
-	for(var i=0,backs = pageWatch.querySelectorAll('.pure-menu > a'),m; m=backs[i]; i++){
-		m.addEventListener('click', onBackClick, false)
-	}
-
 	window.addEventListener('resize', onResize, false)
+	shortcut.add('alt-1', onBackClick)
 
     onLoad()
 })
