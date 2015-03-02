@@ -8,12 +8,12 @@ function WatchPanel(ele, greaterOK){
 }
 
 WatchPanel.prototype = {
-    plot: function(cur, state, min, max){
+    update: function(cur, state, min, max){
 		var cl = this.ele.classList, cn
 
 		if (this.greaterOK){
-			if (cur < min) cn = 'panelUnder'
-			else if (cur > max) cb = 'panelOver'
+			if (cur < min) cn = 'panelOver'
+			else if (cur > max) cn = 'panelUnder'
 			else cn = 'panelOK'
 		}else{
 			if (cur < min) cn = 'panelUnder'

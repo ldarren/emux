@@ -1,6 +1,5 @@
 Resource = {
     timerId: 0,
-    isStopped: false,
     interval: 1000,
     lastTime: Date.now(),
     callback: null,
@@ -9,19 +8,17 @@ Resource = {
         this.stop()
         this.interval = interval && interval > 100 ? interval : this.interval
         this.callback = cb
-        this.isStopped = false
-        if ('demo' === ip) {
+        if (/*'demo' === */ip) {
             this.timerId = window.setTimeout(this.randomAdd, this.interval, this)
         }else{
 			var self = this
-            this.ajaxGet('set?ip='+ip, function(err){
+            this.ajaxGet('config?data='+ip, function(err){
                 if (err) return console.error(err)
                 self.ajaxGet('get', self.netAdd, self)
             })
         }
     },
     stop: function(){
-        this.isStopped = true
         window.clearTimeout(this.timerId)
         this.timerId = 0
     },
@@ -40,6 +37,9 @@ Resource = {
 
         xhr.send()
     },
+    set: function(settings, cb){
+        this.ajaxGet('set?data='+settings.join('|'), cb)
+    },
     netAdd: function(err, xhr, ctx){
         if (err) return console.error(err)
 
@@ -50,17 +50,14 @@ Resource = {
 
         ctx.lastTime = time
         
-		data = xhr.responseText.split('|')
-		ctx.callback(time, parseInt(data[0])/10, hv = parseInt(data[1]))
+		data = xhr.responseText.split('|').map(function(x){return parseInt(x)})
+		ctx.callback(data.slice(0, 4), data.slice(4))
 
-        if (ctx.isStopped) return
-        
-        if (ctx.interval < dt) ctx.ajaxGet('get', ctx.netAdd, ctx)
         ctx.timerId = window.setTimeout(ctx.ajaxGet, ctx.interval - dt, 'get', ctx.netAdd, ctx)
     },
     randomAdd: function(ctx){
-        ctx.callback(Date.now(), Math.round(Math.random()*1000)/10, Math.round(Math.random()*100))
-        if (ctx.isStopped) return
+        var R = Math.round, Ran = Math.random
+        ctx.callback([R(Ran()*1000)/10, R(Ran()*6),20,80], [R(Ran()*100),R(Ran()*6),20,80])
         ctx.timerId = window.setTimeout(ctx.randomAdd, ctx.interval, ctx)
     }
 }
