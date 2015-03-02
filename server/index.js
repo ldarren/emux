@@ -14,7 +14,7 @@ url = require('url'),
 snmp = require('snmp-native'),
 file = new (require('node-static').Server)('../client'),
 intSensors = [1,3,6,1,4,1,3699,1,1,10,1,3,1,1],
-ro, rw, lastTime = Date.now(), out=[], inTmp=[], inHmd=[], pollTimer,
+ro, rw, lastTime = Date.now(), out=[0,0,0,0,0,0,0,0], inTmp=[], inHmd=[], pollTimer,
 init = function(inputs, id){
 	inputs.length = 0
 	inputs.push(intSensors.slice().concat([MIN_CAP, id]))
@@ -28,33 +28,39 @@ config = function(ip){
 	ro = new snmp.Session({host:ip, port:161, community:'ro'})
 	rw = new snmp.Session({host:ip, port:161, community:'rw'})
 	poll(ro)
+	return true
 },
 poll = function(s){
-	s.getSubtree({oid:intSensors}, function(err, varBinds){
-		if (err) {
-			console.error(err)
-		}else{
-			var oid
-			for(var i=0,v; v=varBinds[i]; i++){
-				oid = v.oid
-				switch(oid[14]){
-				case VALUE: out[4 * (oid[15]-1)] = v.value; break
-				case STATUS: out[5 * (oid[15]-1)] = v.value; break
-				case MIN_CAP: out[6 * (oid[15]-1)] = v.value; break
-				case MAX_CAP: out[7 * (oid[15]-1)] = v.value; break
-				}
-			}
-console.log(out)
-		}
-
+	read(s, function(err){
+		if (err) return console.error(err)
 		var
 		now = Date.now(),
 		dt = now - lastTime
 
 		lastTime = now
 
-		if (dt < FREQ) return pollTimer = setTimeout(poll, dt, s)
-		pollTimer = setTimeout(poll, 0, s)
+		pollTimer = setTimeout(poll, dt, s)
+	})
+},
+read = function(s, cb){
+	if (!s) return cb('setup first')
+	s.getSubtree({oid:intSensors}, function(err, varBinds){
+		if (err) {
+			cb(err)
+		}else{
+			var oid, f
+			for(var i=0,v; v=varBinds[i]; i++){
+				oid = v.oid
+				f = oid[15]
+				switch(oid[14]){
+				case VALUE: out[4*(f-1)] = v.value; break
+				case STATUS: out[1*f+3*(f-1)] = v.value; break
+				case MIN_CAP: out[2*f+2*(f-1)] = v.value; break
+				case MAX_CAP: out[3*f+1*(f-1)] = v.value; break
+				}
+			}
+			cb(null, out)
+		}
 	})
 },
 writes = function(s, data){
@@ -62,39 +68,68 @@ writes = function(s, data){
 	data = data.split('|')
 	if (4 !== data.length) return false
 
-	rw.set({oid:inTmp[0], value:parseInt(data.shift()), type:2}, function(err){
+var opt = {oid:inTmp[0], value:parseInt(data.shift()), type:2}
+	s.set(opt, function(err, ret){
+console.log(opt, err, ret)
 		if (err) console.error(err)
-		rw.set({oid:inHmd[0], value:parseInt(data.shift()), type:2}, function(err){
+opt={oid:inHmd[0], value:parseInt(data.shift()), type:2}
+		s.set(opt, function(err, ret){
+console.log(opt, err, ret)
 			if (err) console.error(err)
-			rw.set({oid:inTmp[1], value:parseInt(data.shift()), type:2}, function(err){
+opt={oid:inTmp[1], value:parseInt(data.shift()), type:2}
+			s.set(opt, function(err, ret){
+console.log(opt, err, ret)
 				if (err) console.error(err)
-				rw.set({oid:inHmd[1], value:parseInt(data.shift()), type:2}, function(err){
+opt={oid:inHmd[1], value:parseInt(data.shift()), type:2}
+				s.set(opt, function(err, ret){
+console.log(opt, err, ret)
 					if (err) console.error(err)
 				})
 			})
 		})
 	})
+/*
+	s.set({oid:inTmp[0], value:parseInt(data.shift()), type:2}, function(err){
+		if (err) console.error(err)
+		s.set({oid:inHmd[0], value:parseInt(data.shift()), type:2}, function(err){
+			if (err) console.error(err)
+			s.set({oid:inTmp[1], value:parseInt(data.shift()), type:2}, function(err){
+				if (err) console.error(err)
+				s.set({oid:inHmd[1], value:parseInt(data.shift()), type:2}, function(err){
+					if (err) console.error(err)
+				})
+			})
+		})
+	})
+*/
 	return true
 }
 
 init(inTmp, 1)
 init(inHmd, 2)
 
-poll(new snmp.Session({host:'192.168.1.206', port:161, community:'ro'}))
+//poll(new snmp.Session({host:'192.168.1.206', port:161, community:'ro'}))
 
 http.createServer(function (req, res) {
 	var u = url.parse(req.url, true)
 
 	switch(u.pathname){
 	case '/config':
-		if (writes(u.query.data)) res.writeHead(200)
+		if (config(u.query.data)) res.writeHead(200)
 		else res.writeHead(400)
 		res.end()
 		break
 	case '/set':
-		if (writes(u.query.data)) res.writeHead(200)
+		if (writes(rw, u.query.data)) res.writeHead(200)
 		else res.writeHead(400)
 		res.end()
+		break
+	case '/retrieve':
+		read(ro, function(err){
+			if (err) return res.writeHead(400)
+			res.writeHead(200)
+			res.end(out.join('|'))
+		})
 		break
 	case '/get':
 		res.writeHead(200)

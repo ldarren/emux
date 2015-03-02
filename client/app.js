@@ -4,7 +4,7 @@ window.addEventListener('load', function(e){
 	pageSetup = document.querySelector('#setup.page'),
     formSetup = pageSetup.querySelector('form.pure-form'),
 	pageSettings = document.querySelector('#settings.page'),
-    formSettings = pageSetup.querySelector('form.pure-form'),
+    formSettings = pageSettings.querySelector('form.pure-form'),
 	pageWatch = document.querySelector('#watch.page'),
 	panelTmp = new WatchPanel(pageWatch.querySelector('#tmp.panel'), false),
 	panelHmd = new WatchPanel(pageWatch.querySelector('#hmd.panel'), true),
@@ -22,28 +22,32 @@ window.addEventListener('load', function(e){
     },
 	onNext = function(e){
         if(!formSetup.checkValidity()) return alert('Missing required fields')
-        var ip = formSetup.ip.value
-        window.localStorage.setItem(LSKey, ip)
-		Resource.start(ip, 1000, function(tmp, hmd){
-            formSettings.tmpMin.value = tmp[2]
-            formSettings.tmpMax.value = tmp[3]
-            formSettings.hmdMin.value = hmd[2]
-            formSettings.hmdMax.value = hmd[3]
-            addData(tmp, hmd)
-            Resource.callback = addData
+        var i = formSetup.ip.value
+        window.localStorage.setItem(LSKey, i)
+		Resource.start(i, function(err, tmp, hmd){
+			if (err){
+				Resource.demo(1000, addData, Resource)
+			}else{
+				formSettings.tmpMin.value = tmp[2]
+				formSettings.tmpMax.value = tmp[3]
+				formSettings.hmdMin.value = hmd[2]
+				formSettings.hmdMax.value = hmd[3]
+				addData(tmp, hmd)
+				Resource.poll(1000, addData)
+			}
 
             pageSetup.setAttribute('hidden', '')
-            pageSettings.removeAttribute('hidden')
-            pageWatch.setAttribute('hidden', '')
+            pageSettings.setAttribute('hidden', '')
+            pageWatch.removeAttribute('hidden')
         })
 	},
     onSave = function(e){
         if(!formSettings.checkValidity()) return alert('Missing required fields')
 		var settings = []
-        settings.push(formSettings.tmpMin.value)
-        settings.push(formSettings.hmdMin.value)
-        settings.push(formSettings.tmpMax.value)
-        settings.push(formSettings.hmdMax.value)
+        settings.push(parseInt(formSettings.tmpMin.value)*10)
+        settings.push(parseInt(formSettings.hmdMin.value))
+        settings.push(parseInt(formSettings.tmpMax.value)*10)
+        settings.push(parseInt(formSettings.hmdMax.value))
         Resource.set(settings, function(){})
     },
 	onWatch = function(e){
@@ -56,8 +60,11 @@ window.addEventListener('load', function(e){
     pageSettings.querySelector('form.pure-form button.pure-button-primary').addEventListener('click', onSave, false)
     pageSettings.querySelector('form.pure-form button.pure-button-positive').addEventListener('click', onWatch, false)
 
-	shortcut.add('alt-1', onSetup)
+	shortcut.add('alt+1', onSetup)
 
-    Resource.start(window.localStorage.getItem(LSKey) || 'demo', 1000, addData)
+    Resource.start(window.localStorage.getItem(LSKey) || 'demo', function(err){
+		if (err) Resource.demo(1000, addData, Resource)
+		else Resource.poll(1000, addData)
+	})
     onWatch()
 })
