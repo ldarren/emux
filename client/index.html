@@ -7,6 +7,23 @@
 <title>Enviromux Watchdog</title>
 </head>
 <body>
+<div id=login class=page hidden>
+<div class="pure-menu pure-menu-open pure-menu-horizontal">
+	<a href="#" class="pure-menu-heading">Enviromux Watchdog</a>
+</div>
+<form class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class=pure-control-group>
+            <label for=password></label>
+            <input id=password type=password required>
+        </div>
+
+        <div class=pure-controls>
+            <button type=button class="pure-button pure-button-primary">Login</button>
+        </div>
+    </fieldset>
+</form>
+</div>
 <div id=setup class=page hidden>
 <div class="pure-menu pure-menu-open pure-menu-horizontal">
 	<a href="#" class="pure-menu-heading">Enviromux Watchdog</a>
@@ -15,7 +32,7 @@
     <fieldset>
         <div class=pure-control-group>
             <label for=ip>Enviromux IP Address</label>
-            <input id=ip type=text placeholder=192.168.1.100:8080 value=demo required>
+            <input id=ip type=text placeholder=192.168.1.206 value=demo required>
         </div>
 
         <div class=pure-controls>

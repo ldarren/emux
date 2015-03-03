@@ -1,24 +1,48 @@
 window.addEventListener('load', function(e){
 	var
     LSKey = 'emux',
+	pageLogin = document.querySelector('#login.page'),
+    formLogin = pageLogin.querySelector('form.pure-form'),
 	pageSetup = document.querySelector('#setup.page'),
     formSetup = pageSetup.querySelector('form.pure-form'),
 	pageSettings = document.querySelector('#settings.page'),
     formSettings = pageSettings.querySelector('form.pure-form'),
 	pageWatch = document.querySelector('#watch.page'),
 	panelTmp = new WatchPanel(pageWatch.querySelector('#tmp.panel'), false),
-	panelHmd = new WatchPanel(pageWatch.querySelector('#hmd.panel'), true),
+	panelHmd = new WatchPanel(pageWatch.querySelector('#hmd.panel'), false),
     addData = function(tmp, hmd){
         panelTmp.update.apply(panelTmp, tmp)
         panelHmd.update.apply(panelHmd, hmd)
     },
-    onSetup = function(){
-        Resource.stop()
-        formSetup.ip.value = window.localStorage.getItem(LSKey) || 'demo'
+    hash = function(str){
+        var hash = 0
 
-		pageSetup.removeAttribute('hidden')
+        for (var i = 0, l=str.length; i < l; i++) {
+            hash = ((hash<<5)-hash)+str.charCodeAt(i)
+            hash = hash & hash
+        }
+        return hash
+    },
+    changePage = function(page){
+		pageLogin.setAttribute('hidden', '')
+		pageSetup.setAttribute('hidden', '')
 		pageSettings.setAttribute('hidden', '')
 		pageWatch.setAttribute('hidden', '')
+		page.removeAttribute('hidden')
+    },
+    onShowLogin = function(){
+        changePage(pageLogin)
+    },
+    onLogin = function(){
+        if(!formLogin.checkValidity()) return alert('Missing required fields')
+        if (109411  === hash(formLogin.password.value)){
+            Resource.stop()
+            formSetup.ip.value = window.localStorage.getItem(LSKey) || 'demo'
+            changePage(pageSetup)
+        }else{
+            alert('access denied')
+        }
+        formLogin.password.value = ''
     },
 	onNext = function(e){
         if(!formSetup.checkValidity()) return alert('Missing required fields')
@@ -36,9 +60,7 @@ window.addEventListener('load', function(e){
 				Resource.poll(1000, addData)
 			}
 
-            pageSetup.setAttribute('hidden', '')
-            pageSettings.setAttribute('hidden', '')
-            pageWatch.removeAttribute('hidden')
+            changePage(pageWatch)
         })
 	},
     onSave = function(e){
@@ -51,16 +73,15 @@ window.addEventListener('load', function(e){
         Resource.set(settings, function(){})
     },
 	onWatch = function(e){
-		pageSetup.setAttribute('hidden', '')
-		pageSettings.setAttribute('hidden', '')
-		pageWatch.removeAttribute('hidden')
+        changePage(pageWatch)
 	}
 
-    pageSetup.querySelector('form.pure-form button.pure-button').addEventListener('click', onNext, false)
-    pageSettings.querySelector('form.pure-form button.pure-button-primary').addEventListener('click', onSave, false)
-    pageSettings.querySelector('form.pure-form button.pure-button-positive').addEventListener('click', onWatch, false)
+    formLogin.querySelector('button.pure-button').addEventListener('click', onLogin, false)
+    formSetup.querySelector('button.pure-button').addEventListener('click', onNext, false)
+    formSettings.querySelector('button.pure-button-primary').addEventListener('click', onSave, false)
+    formSettings.querySelector('button.pure-button-positive').addEventListener('click', onWatch, false)
 
-	shortcut.add('alt+1', onSetup)
+	shortcut.add('alt+1', onShowLogin)
 
     Resource.start(window.localStorage.getItem(LSKey) || 'demo', function(err){
 		if (err) Resource.demo(1000, addData, Resource)
